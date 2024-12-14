@@ -6,6 +6,11 @@ import { LoginFormDataSchema } from "../../utilities/zod/loginSchema";
 import { z } from "zod";
 import { OAuthClient } from "../../../../oauth-client-lib/oauth-client";
 import { GOOGLE_OAUTH_CONFIG } from "../../utils/google-oauth-config";
+import toast from "react-hot-toast";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import UseAuth from "../../services/useAuth";
+import useSignIn from "react-auth-kit/hooks/useSignIn";
 
 type Inputs = z.infer<typeof LoginFormDataSchema>;
 
@@ -18,12 +23,46 @@ const Login = () => {
     resolver: zodResolver(LoginFormDataSchema),
   });
 
-  const onSubmit: SubmitHandler<Inputs> = async () => {
-    // const obj = {
-    //   username: data.email,
-    //   password: data.password,
-    // };
-    // LoginMutation.mutate(obj);
+  const navigate = useNavigate();
+  const signIn = useSignIn();
+  const { loginUser } = UseAuth();
+
+  const LoginMutation = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      if (
+        signIn({
+          auth: {
+            token: data.token,
+            type: "Bearer",
+          },
+          userState: {
+            email: data.email,
+            email_verified: data.email_verified,
+            family_name: data.family_name,
+            given_name: data.given_name,
+            name: data.name,
+            picture: data.picture,
+            sub: data.sub,
+          },
+        })
+      ) {
+        toast.success("Login successful");
+        navigate("/home");
+      }
+    },
+    onError: (err) => {
+      navigate("/");
+      toast.error(err.message);
+    },
+  });
+
+  const onSubmit: SubmitHandler<Inputs> = async (data: Inputs) => {
+    const obj = {
+      email: data.email,
+      password: data.password,
+    };
+    LoginMutation.mutate(obj);
   };
 
   const oauthClient = new OAuthClient(GOOGLE_OAUTH_CONFIG);
