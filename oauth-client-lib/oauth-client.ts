@@ -1,3 +1,4 @@
+import axios from "axios";
 import { OAuthClientConfig, TokenResponse } from "./interfaceType";
 export class OAuthClient {
   private clientId: string;
@@ -5,6 +6,7 @@ export class OAuthClient {
   private redirectUri: string;
   private authUrl: string;
   private tokenUrl: string;
+  private tokenExpiryTime?: number;
 
   constructor({
     clientId,
@@ -52,18 +54,17 @@ export class OAuthClient {
       client_secret: this.clientSecret,
     });
 
-    const response = await fetch(this.tokenUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString(),
-    });
+    try {
+      const response = await axios.post(this.tokenUrl, body.toString(), {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
+      const tokenResponse = response.data;
+      this.tokenExpiryTime = Date.now() + tokenResponse.expires_in * 1000;
+      return tokenResponse;
+    } catch (error) {
       throw new Error(`failed: ${error}`);
     }
-
-    return (await response.json()) as TokenResponse;
   }
 
   async refreshToken(refreshToken: string): Promise<TokenResponse> {
@@ -74,17 +75,19 @@ export class OAuthClient {
       client_secret: this.clientSecret,
     });
 
-    const response = await fetch(this.tokenUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString(),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
+    try {
+      const response = await axios.post(this.tokenUrl, body.toString(), {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+      const tokenResponse = response.data;
+      this.tokenExpiryTime = Date.now() + tokenResponse.expires_in * 1000;
+      return response.data;
+    } catch (error) {
       throw new Error(`Token refresh failed: ${error}`);
     }
+  }
 
-    return await response.json();
+  isTokenExpired(): boolean {
+    return !this.tokenExpiryTime || Date.now() >= this.tokenExpiryTime - 30000;
   }
 }
