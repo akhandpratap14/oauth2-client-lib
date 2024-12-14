@@ -11,7 +11,6 @@ const oauthClient = new OAuthClient(GOOGLE_OAUTH_CONFIG);
 
 const CallbackPage = () => {
   const navigate = useNavigate();
-
   const signIn = useSignIn();
 
   useEffect(() => {
@@ -35,8 +34,17 @@ const CallbackPage = () => {
 
           const isSigned = signIn({
             auth: {
-              token: tokenResponse.access_token,
+              token: tokenResponse.id_token,
               type: "Bearer",
+            },
+            userState: {
+              email: userInfo.email,
+              email_verified: userInfo.email_verified,
+              family_name: userInfo.family_name,
+              given_name: userInfo.given_name,
+              name: userInfo.name,
+              picture: userInfo.picture,
+              sub: userInfo.sub,
             },
           });
 

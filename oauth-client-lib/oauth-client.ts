@@ -1,20 +1,4 @@
-interface OAuthClientConfig {
-  clientId: string;
-  clientSecret: string; // Optional
-  redirectUri: string;
-  authUrl: string;
-  tokenUrl: string;
-}
-
-interface TokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token: string;
-  scope?: string;
-  [key: string]: any;
-}
-
+import { OAuthClientConfig, TokenResponse } from "./interfaceType";
 export class OAuthClient {
   private clientId: string;
   private clientSecret: string;
@@ -48,6 +32,7 @@ export class OAuthClient {
       redirect_uri: this.redirectUri,
       response_type: "code",
       scope: scope.join(" "),
+      access_type: "offline",
     });
     return `${this.authUrl}?${params.toString()}`;
   }
@@ -64,11 +49,8 @@ export class OAuthClient {
       code: callbackParams.code,
       redirect_uri: this.redirectUri,
       client_id: this.clientId,
+      client_secret: this.clientSecret,
     });
-
-    if (this.clientSecret) {
-      body.append("client_secret", this.clientSecret);
-    }
 
     const response = await fetch(this.tokenUrl, {
       method: "POST",
@@ -77,17 +59,8 @@ export class OAuthClient {
     });
 
     if (!response.ok) {
-      let errorDetails: any;
-      try {
-        errorDetails = await response.json();
-      } catch {
-        errorDetails = { error_description: "Unknown error occurred" };
-      }
-      throw new Error(
-        `Token exchange failed: ${
-          errorDetails.error_description || response.statusText
-        }`
-      );
+      const error = await response.json();
+      throw new Error(`failed: ${error}`);
     }
 
     return (await response.json()) as TokenResponse;
@@ -98,11 +71,8 @@ export class OAuthClient {
       grant_type: "refresh_token",
       refresh_token: refreshToken,
       client_id: this.clientId,
+      client_secret: this.clientSecret,
     });
-
-    if (this.clientSecret) {
-      body.append("client_secret", this.clientSecret);
-    }
 
     const response = await fetch(this.tokenUrl, {
       method: "POST",
@@ -111,32 +81,10 @@ export class OAuthClient {
     });
 
     if (!response.ok) {
-      let errorDetails: any;
-      try {
-        errorDetails = await response.json();
-      } catch {
-        errorDetails = { error_description: "Unknown error occurred" };
-      }
-      throw new Error(
-        `Token refresh failed: ${
-          errorDetails.error_description || response.statusText
-        }`
-      );
+      const error = await response.json();
+      throw new Error(`Token refresh failed: ${error}`);
     }
 
-    return (await response.json()) as TokenResponse;
-  }
-
-  async revokeToken(token: string): Promise<void> {
-    const body = new URLSearchParams({ token });
-    const response = await fetch(`${this.tokenUrl}/revoke`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString(),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Token revocation failed: ${response.statusText}`);
-    }
+    return await response.json();
   }
 }

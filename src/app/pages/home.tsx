@@ -1,6 +1,7 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, Typography, Box, Button } from "@mui/material";
 import useSignOut from "react-auth-kit/hooks/useSignOut";
+import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 
 const Home = () => {
   const location = useLocation();
@@ -11,6 +12,10 @@ const Home = () => {
     signOut();
     navigate("/login");
   };
+
+  const isAuthenticated = useIsAuthenticated();
+  if (isAuthenticated == false) return <Navigate to="/login" />;
+
   return (
     <Box
       sx={{
