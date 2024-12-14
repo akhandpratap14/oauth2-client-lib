@@ -214,6 +214,9 @@ The application will be available at `http://localhost:3000`.
    - Displays user information (name, email, profile picture).
    - Shows email verification status.
    - Includes a **Logout** button to clear the session.
+## Demo Video 
+[![Watch the video](./assets/demo-thumbnail.png)](https://youtu.be/PNsUXMjeqKQ)
+
 
 
 
