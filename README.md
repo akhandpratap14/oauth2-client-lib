@@ -1,6 +1,6 @@
 ## Overview
 
-This project demonstrates an OAuth 2.0 client library implemented in TypeScript, along with a demo application that uses the library to authenticate users via Google OAuth. It integrates tools like **React Hook Form**, **TanStack React Query**, and **React Auth Kit** for an enhanced developer experience.
+This project demonstrates an AuthO client library implemented in TypeScript, along with a demo application that uses the library to authenticate users via Google OAuth. It integrates tools like **React Hook Form**, **TanStack React Query**, and **React Auth Kit** for an enhanced developer experience.
 
 ---
 
@@ -75,23 +75,24 @@ Create an instance of `OAuthClient` with your OAuth configuration:
 
 ```typescript
 const oauthClient = new OAuthClient({
-  clientId: "YOUR_CLIENT_ID",
-  redirectUri: "http://localhost:3000/callback",
-  authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
-  tokenUrl: "https://oauth2.googleapis.com/token",
+  clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
+  redirectUri: import.meta.env.VITE_APP_REDIRECTURL,
+  authUrl: "****",
+  tokenUrl: "****",
 });
 ```
 
-### 3. Start OAuth Flow
+### 3. Start AuthO Flow
 
 Generate the authorization URL and redirect the user:
 
 ```typescript
 const authUrl = oauthClient.startAuthFlow([
-  "https://www.googleapis.com/auth/userinfo.email",
-  "https://www.googleapis.com/auth/userinfo.profile",
+  "openid",
+  "profile",
+  "email"
 ]);
-window.open(authUrl, "_blank");
+window.location.href = authUrl;
 ```
 
 ### 4. Handle Callback
@@ -99,10 +100,7 @@ window.open(authUrl, "_blank");
 After the user is redirected back with an authorization code, exchange it for tokens:
 
 ```typescript
-const tokenResponse = await oauthClient.handleCallback({
-  code: "AUTHORIZATION_CODE",
-});
-console.log("Token Response:", tokenResponse);
+const tokenResponse = await oauthClient.handleCallback({ AUTHORIZATION_CODE });
 ```
 
 ### 5. Refresh Token
@@ -141,9 +139,10 @@ npm install
 Create a `.env` file in the root directory and add the following:
 
 ```env
-VITE_GOOGLE_CLIENT_ID=your-client-id
-VITE_REDIRECT_URI=http://localhost:3000/callback
-VITE_APP_APIURL=http://localhost:5000/api
+
+VITE_APP_APIURL="http://localhost:8000/"
+VITE_APP_REDIRECTURL="http://localhost:5173/callback"
+VITE_AUTH0_CLIENT_ID="****"
 ```
 
 ### 5. Run the Development Server
@@ -161,9 +160,9 @@ The application will be available at `http://localhost:3000`.
 ### 1. Login with Google
 
 - The `Login.tsx` page provides a form-based login and a **Sign in with Google** button.
-- Clicking the button initiates the OAuth flow via the `GoogleLogin` function.
+- Clicking the button initiates the OAuth flow via the `login` function.
 
-### 2. OAuth Callback Handling
+### 2. AUTH) Callback Handling
 
 - The `OAuthCallback.tsx` processes the authorization code returned by Google.
 - It exchanges the code for tokens and fetches the user's profile information.
