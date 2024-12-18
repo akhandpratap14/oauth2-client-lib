@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { OAuthClient } from "../../../oauth-client-lib/oauth-client";
-import { GOOGLE_OAUTH_CONFIG } from "../utils/google-oauth-config";
+import { AUTHO_CONFIG } from "../utils/autho-config";
 import toast from "react-hot-toast";
 import axios from "axios";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { CircularProgress, Box } from "@mui/material";
 
-const oauthClient = new OAuthClient(GOOGLE_OAUTH_CONFIG);
+const oauthClient = new OAuthClient(AUTHO_CONFIG);
 
 const CallbackPage = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const CallbackPage = () => {
           const tokenResponse = await oauthClient.handleCallback({ code });
 
           const userInfoResponse = await axios.get(
-            "https://www.googleapis.com/oauth2/v3/userinfo",
+            "https://dev-adqqhipcwhhafqtf.us.auth0.com/userinfo",
             {
               headers: {
                 Authorization: `Bearer ${tokenResponse.access_token}`,
@@ -52,7 +52,7 @@ const CallbackPage = () => {
             navigate("/home", { state: { user: userInfo } });
           }
         } catch (e) {
-          toast.error("Error during callback handling:", e);
+          toast.error(`Error during callback handling: ${e}`);
         }
       } else {
         toast.error("Authorization code is missing from the URL");

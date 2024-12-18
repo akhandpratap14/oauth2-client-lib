@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormDataSchema } from "../../utilities/zod/loginSchema";
 import { z } from "zod";
 import { OAuthClient } from "../../../../oauth-client-lib/oauth-client";
-import { GOOGLE_OAUTH_CONFIG } from "../../utils/google-oauth-config";
+import { AUTHO_CONFIG } from "../../utils/autho-config";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -65,14 +65,15 @@ const Login = () => {
     LoginMutation.mutate(obj);
   };
 
-  const oauthClient = new OAuthClient(GOOGLE_OAUTH_CONFIG);
+  const oauthClient = new OAuthClient(AUTHO_CONFIG);
 
-  const GoogleLogin = () => {
-    const authUrl = oauthClient.startAuthFlow([
-      "https://www.googleapis.com/auth/userinfo.email",
-      "https://www.googleapis.com/auth/userinfo.profile",
+  const login = async () => {
+    const authUrl = await oauthClient.startAuthFlow([
+      "openid",
+      "profile",
+      "email",
     ]);
-    window.open(authUrl, "_blank");
+    window.location.href = authUrl;
   };
 
   return (
@@ -165,7 +166,7 @@ const Login = () => {
                 />
                 <div
                   onClick={() => {
-                    GoogleLogin();
+                    login();
                   }}
                   className="py-4 w-full mt-4 hover:scale-105 duration-200 transition-all ease-in-out text-white rounded-lg flex items-center justify-center cursor-pointer bg-[#3c50e0]"
                 >

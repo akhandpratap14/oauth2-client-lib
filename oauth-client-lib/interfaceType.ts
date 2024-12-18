@@ -1,6 +1,5 @@
 export interface OAuthClientConfig {
   clientId: string;
-  clientSecret: string;
   redirectUri: string;
   authUrl: string;
   tokenUrl: string;

@@ -76,7 +76,6 @@ Create an instance of `OAuthClient` with your OAuth configuration:
 ```typescript
 const oauthClient = new OAuthClient({
   clientId: "YOUR_CLIENT_ID",
-  clientSecret: "YOUR_CLIENT_SECRET",
   redirectUri: "http://localhost:3000/callback",
   authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
   tokenUrl: "https://oauth2.googleapis.com/token",
@@ -100,7 +99,9 @@ window.open(authUrl, "_blank");
 After the user is redirected back with an authorization code, exchange it for tokens:
 
 ```typescript
-const tokenResponse = await oauthClient.handleCallback({ code: "AUTHORIZATION_CODE" });
+const tokenResponse = await oauthClient.handleCallback({
+  code: "AUTHORIZATION_CODE",
+});
 console.log("Token Response:", tokenResponse);
 ```
 
@@ -141,7 +142,6 @@ Create a `.env` file in the root directory and add the following:
 
 ```env
 VITE_GOOGLE_CLIENT_ID=your-client-id
-VITE_GOOGLE_CLIENT_SECRET=your-client-secret
 VITE_REDIRECT_URI=http://localhost:3000/callback
 VITE_APP_APIURL=http://localhost:5000/api
 ```
@@ -214,11 +214,7 @@ The application will be available at `http://localhost:3000`.
    - Displays user information (name, email, profile picture).
    - Shows email verification status.
    - Includes a **Logout** button to clear the session.
-## Demo Video 
+
+## Demo Video
+
 [![Watch the video](./assets/demo-thumbnail.png)](https://youtu.be/PNsUXMjeqKQ)
-
-
-
-
-
-
