@@ -170,7 +170,7 @@ const Login = () => {
                   }}
                   className="py-4 w-full mt-4 hover:scale-105 duration-200 transition-all ease-in-out text-white rounded-lg flex items-center justify-center cursor-pointer bg-[#3c50e0]"
                 >
-                  Sign in with google
+                  Sign in with AuhtO
                 </div>
               </div>
             </div>
